@@ -27,22 +27,25 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 static void finalize (GObject *object);
 
-struct _AlmanahHyperlinkTagPrivate {
+typedef struct {
 	gchar *uri;
+} AlmanahHyperlinkTagPrivate;
+
+struct _AlmanahHyperlinkTag {
+	GtkTextTag parent;
+	AlmanahHyperlinkTagPrivate *priv;
 };
 
 enum {
 	PROP_URI = 1
 };
 
-G_DEFINE_TYPE (AlmanahHyperlinkTag, almanah_hyperlink_tag, GTK_TYPE_TEXT_TAG)
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahHyperlinkTag, almanah_hyperlink_tag, GTK_TYPE_TEXT_TAG)
 
 static void
 almanah_hyperlink_tag_class_init (AlmanahHyperlinkTagClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahHyperlinkTagPrivate));
 
 	gobject_class->constructed = constructed;
 	gobject_class->get_property = get_property;
@@ -59,7 +62,7 @@ almanah_hyperlink_tag_class_init (AlmanahHyperlinkTagClass *klass)
 static void
 almanah_hyperlink_tag_init (AlmanahHyperlinkTag *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_HYPERLINK_TAG, AlmanahHyperlinkTagPrivate);
+	self->priv = almanah_hyperlink_tag_get_instance_private (self);
 	self->priv->uri = NULL;
 }
 

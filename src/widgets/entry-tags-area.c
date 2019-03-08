@@ -31,12 +31,17 @@ enum {
 	PROP_BACK_WIDGET
 };
 
-struct _AlmanahEntryTagsAreaPrivate {
+typedef struct {
 	AlmanahEntry *entry;
 	AlmanahStorageManager *storage_manager;
 	GtkWidget *back_widget;
 	guint tags_number;
 	AlmanahTagEntry *tag_entry;
+} AlmanahEntryTagsAreaPrivate;
+
+struct _AlmanahEntryTagsArea {
+	EggWrapBox parent;
+	AlmanahEntryTagsAreaPrivate *priv;
 };
 
 static void almanah_entry_tags_area_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
@@ -52,15 +57,13 @@ void        tag_entry_activate_cb              (GtkEntry *entry, AlmanahEntryTag
 void        entry_tags_area_remove_foreach_cb  (GtkWidget *tag_widget, AlmanahEntryTagsArea *self);
 static void tag_remove                         (AlmanahTag *tag_widget, AlmanahEntryTagsArea *self);
 
-G_DEFINE_TYPE (AlmanahEntryTagsArea, almanah_entry_tags_area, EGG_TYPE_WRAP_BOX)
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahEntryTagsArea, almanah_entry_tags_area, EGG_TYPE_WRAP_BOX)
 
 static void
 almanah_entry_tags_area_class_init (AlmanahEntryTagsAreaClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahEntryTagsAreaPrivate));
 
 	gobject_class->get_property = almanah_entry_tags_area_get_property;
 	gobject_class->set_property = almanah_entry_tags_area_set_property;
@@ -90,7 +93,7 @@ almanah_entry_tags_area_class_init (AlmanahEntryTagsAreaClass *klass)
 static void
 almanah_entry_tags_area_init (AlmanahEntryTagsArea *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_ENTRY_TAGS_AREA, AlmanahEntryTagsAreaPrivate);
+	self->priv = almanah_entry_tags_area_get_instance_private (self);
 
 	/* There is no tags showed right now. */
 	self->priv->tags_number = 0;

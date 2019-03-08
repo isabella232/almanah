@@ -49,7 +49,7 @@ static guint8 *serialise_entry_xml_2_0 (GtkTextBuffer *register_buffer, GtkTextB
 static gboolean deserialise_entry_xml_2_0 (GtkTextBuffer *register_buffer, GtkTextBuffer *content_buffer, GtkTextIter *iter, const guint8 *data,
                                            gsize length, gboolean create_tags, gpointer user_data, GError **error);
 
-struct _AlmanahEntryPrivate {
+typedef struct {
 	GDate date;
 	guint8 *data;
 	gsize length;
@@ -57,6 +57,11 @@ struct _AlmanahEntryPrivate {
 	gboolean is_empty;
 	gboolean is_important;
 	GDate last_edited; /* date the entry was last edited *in the database*; e.g. this isn't updated when almanah_entry_set_content() is called */
+} AlmanahEntryPrivate;
+
+struct _AlmanahEntry {
+	GObject parent;
+	AlmanahEntryPrivate *priv;
 };
 
 enum {
@@ -69,15 +74,12 @@ enum {
 	PROP_LAST_EDITED_YEAR
 };
 
-G_DEFINE_TYPE (AlmanahEntry, almanah_entry, G_TYPE_OBJECT)
-#define ALMANAH_ENTRY_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_ENTRY, AlmanahEntryPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahEntry, almanah_entry, G_TYPE_OBJECT)
 
 static void
 almanah_entry_class_init (AlmanahEntryClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahEntryPrivate));
 
 	gobject_class->set_property = almanah_entry_set_property;
 	gobject_class->get_property = almanah_entry_get_property;
@@ -122,7 +124,7 @@ almanah_entry_class_init (AlmanahEntryClass *klass)
 static void
 almanah_entry_init (AlmanahEntry *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_ENTRY, AlmanahEntryPrivate);
+	self->priv = almanah_entry_get_instance_private (self);
 	self->priv->data = NULL;
 	self->priv->length = 0;
 	self->priv->version = DATA_FORMAT_UNSET;

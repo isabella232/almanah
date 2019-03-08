@@ -38,7 +38,7 @@ void sd_view_button_clicked_cb (GtkButton *self, AlmanahSearchDialog *search_dia
 static void sd_search_progress_cb (AlmanahStorageManager *storage_manager, AlmanahEntry *entry, AlmanahSearchDialog **search_dialog_weak_pointer);
 static void sd_search_ready_cb (AlmanahStorageManager *storage_manager, GAsyncResult *res, AlmanahSearchDialog **search_dialog_weak_pointer);
 
-struct _AlmanahSearchDialogPrivate {
+typedef struct {
 	GtkEntry *sd_search_entry;
 	GtkWidget *sd_search_button;
 	GtkWidget *sd_cancel_button;
@@ -48,21 +48,24 @@ struct _AlmanahSearchDialogPrivate {
 	GtkListStore *sd_results_store;
 	GtkTreeSelection *sd_results_selection;
 	GCancellable *sd_cancellable;
+} AlmanahSearchDialogPrivate;
+
+struct _AlmanahSearchDialog {
+	GtkDialog parent;
+	AlmanahSearchDialogPrivate *priv;
 };
 
-G_DEFINE_TYPE (AlmanahSearchDialog, almanah_search_dialog, GTK_TYPE_DIALOG)
-#define ALMANAH_SEARCH_DIALOG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_SEARCH_DIALOG, AlmanahSearchDialogPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahSearchDialog, almanah_search_dialog, GTK_TYPE_DIALOG)
 
 static void
 almanah_search_dialog_class_init (AlmanahSearchDialogClass *klass)
 {
-	g_type_class_add_private (klass, sizeof (AlmanahSearchDialogPrivate));
 }
 
 static void
 almanah_search_dialog_init (AlmanahSearchDialog *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_SEARCH_DIALOG, AlmanahSearchDialogPrivate);
+	self->priv = almanah_search_dialog_get_instance_private (self);
 
 	g_signal_connect (self, "response", G_CALLBACK (sd_response_cb), self);
 	gtk_window_set_modal (GTK_WINDOW (self), FALSE);

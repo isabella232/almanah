@@ -31,25 +31,27 @@ static void almanah_uri_entry_dialog_set_property (GObject *object, guint proper
 /* GtkBuilder callbacks */
 G_MODULE_EXPORT void ued_uri_entry_notify_text_cb (GObject *gobject, GParamSpec *pspec, AlmanahUriEntryDialog *self);
 
-struct _AlmanahUriEntryDialogPrivate {
+typedef struct {
 	gchar *uri;
 	GtkWidget *ok_button;
 	GtkEntry *uri_entry;
+} AlmanahUriEntryDialogPrivate;
+
+struct _AlmanahUriEntryDialog {
+	GtkDialog parent;
+	AlmanahUriEntryDialogPrivate *priv;
 };
 
 enum {
 	PROP_URI = 1
 };
 
-G_DEFINE_TYPE (AlmanahUriEntryDialog, almanah_uri_entry_dialog, GTK_TYPE_DIALOG)
-#define ALMANAH_URI_ENTRY_DIALOG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_URI_ENTRY_DIALOG, AlmanahUriEntryDialogPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahUriEntryDialog, almanah_uri_entry_dialog, GTK_TYPE_DIALOG)
 
 static void
 almanah_uri_entry_dialog_class_init (AlmanahUriEntryDialogClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahUriEntryDialogPrivate));
 
 	gobject_class->set_property = almanah_uri_entry_dialog_set_property;
 	gobject_class->get_property = almanah_uri_entry_dialog_get_property;
@@ -64,7 +66,7 @@ almanah_uri_entry_dialog_class_init (AlmanahUriEntryDialogClass *klass)
 static void
 almanah_uri_entry_dialog_init (AlmanahUriEntryDialog *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_URI_ENTRY_DIALOG, AlmanahUriEntryDialogPrivate);
+	self->priv = almanah_uri_entry_dialog_get_instance_private (self);
 
 	g_signal_connect (self, "response", (GCallback) gtk_widget_hide, self);
 	gtk_window_set_resizable (GTK_WINDOW (self), FALSE);

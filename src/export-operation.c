@@ -59,25 +59,27 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 static void almanah_export_operation_dispose (GObject *object);
 
-struct _AlmanahExportOperationPrivate {
+typedef struct {
 	gint current_mode; /* index into export_modes */
 	AlmanahStorageManager *storage_manager;
 	GFile *destination;
+} AlmanahExportOperationPrivate;
+
+struct _AlmanahExportOperation {
+	GObject parent;
+	AlmanahExportOperationPrivate *priv;
 };
 
 enum {
 	PROP_STORAGE_MANAGER = 1,
 };
 
-G_DEFINE_TYPE (AlmanahExportOperation, almanah_export_operation, G_TYPE_OBJECT)
-#define ALMANAH_EXPORT_OPERATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_EXPORT_OPERATION, AlmanahExportOperationPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahExportOperation, almanah_export_operation, G_TYPE_OBJECT)
 
 static void
 almanah_export_operation_class_init (AlmanahExportOperationClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahExportOperationPrivate));
 
 	gobject_class->get_property = get_property;
 	gobject_class->set_property = set_property;
@@ -93,7 +95,7 @@ almanah_export_operation_class_init (AlmanahExportOperationClass *klass)
 static void
 almanah_export_operation_init (AlmanahExportOperation *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_EXPORT_OPERATION, AlmanahExportOperationPrivate);
+	self->priv = almanah_export_operation_get_instance_private (self);
 	self->priv->current_mode = -1; /* no mode selected */
 }
 

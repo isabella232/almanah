@@ -38,10 +38,15 @@ static void almanah_storage_manager_get_property (GObject *object, guint propert
 static void almanah_storage_manager_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 static gboolean simple_query (AlmanahStorageManager *self, const gchar *query, GError **error, ...);
 
-struct _AlmanahStorageManagerPrivate {
+typedef struct {
 	gchar *filename;
 	sqlite3 *connection;
 	GSettings *settings;
+} AlmanahStorageManagerPrivate;
+
+struct _AlmanahStorageManager {
+	GObject parent;
+	AlmanahStorageManagerPrivate *priv;
 };
 
 enum {
@@ -61,8 +66,7 @@ enum {
 
 static guint storage_manager_signals[LAST_SIGNAL] = { 0, };
 
-G_DEFINE_TYPE (AlmanahStorageManager, almanah_storage_manager, G_TYPE_OBJECT)
-#define ALMANAH_STORAGE_MANAGER_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_STORAGE_MANAGER, AlmanahStorageManagerPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahStorageManager, almanah_storage_manager, G_TYPE_OBJECT)
 
 GQuark
 almanah_storage_manager_error_quark (void)
@@ -74,8 +78,6 @@ static void
 almanah_storage_manager_class_init (AlmanahStorageManagerClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahStorageManagerPrivate));
 
 	gobject_class->set_property = almanah_storage_manager_set_property;
 	gobject_class->get_property = almanah_storage_manager_get_property;
@@ -134,7 +136,7 @@ almanah_storage_manager_class_init (AlmanahStorageManagerClass *klass)
 static void
 almanah_storage_manager_init (AlmanahStorageManager *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_STORAGE_MANAGER, AlmanahStorageManagerPrivate);
+	self->priv = almanah_storage_manager_get_instance_private (self);
 	self->priv->filename = NULL;
 }
 
@@ -165,7 +167,7 @@ almanah_storage_manager_new (const gchar *filename, GSettings *settings)
 static void
 almanah_storage_manager_finalize (GObject *object)
 {
-	AlmanahStorageManagerPrivate *priv = ALMANAH_STORAGE_MANAGER (object)->priv;
+	AlmanahStorageManagerPrivate *priv = almanah_storage_manager_get_instance_private (ALMANAH_STORAGE_MANAGER (object));
 
 	g_free (priv->filename);
 
@@ -176,7 +178,7 @@ almanah_storage_manager_finalize (GObject *object)
 static void
 almanah_storage_manager_get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec)
 {
-	AlmanahStorageManagerPrivate *priv = ALMANAH_STORAGE_MANAGER (object)->priv;
+	AlmanahStorageManagerPrivate *priv = almanah_storage_manager_get_instance_private (ALMANAH_STORAGE_MANAGER (object));
 
 	switch (property_id) {
 		case PROP_FILENAME:
@@ -195,7 +197,7 @@ almanah_storage_manager_get_property (GObject *object, guint property_id, GValue
 static void
 almanah_storage_manager_set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec)
 {
-	AlmanahStorageManagerPrivate *priv = ALMANAH_STORAGE_MANAGER (object)->priv;
+	AlmanahStorageManagerPrivate *priv = almanah_storage_manager_get_instance_private (ALMANAH_STORAGE_MANAGER (object));
 
 	switch (property_id) {
 		case PROP_FILENAME:

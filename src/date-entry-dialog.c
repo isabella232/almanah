@@ -31,25 +31,27 @@ static void almanah_date_entry_dialog_set_property (GObject *object, guint prope
 /* GtkBuilder callbacks */
 void ded_date_entry_notify_text_cb (GObject *gobject, GParamSpec *pspec, AlmanahDateEntryDialog *self);
 
-struct _AlmanahDateEntryDialogPrivate {
+typedef struct {
 	GDate date;
 	GtkWidget *ok_button;
 	GtkEntry *date_entry;
+} AlmanahDateEntryDialogPrivate;
+
+struct _AlmanahDateEntryDialog {
+	GtkDialog parent;
+	AlmanahDateEntryDialogPrivate *priv;
 };
 
 enum {
 	PROP_DATE = 1
 };
 
-G_DEFINE_TYPE (AlmanahDateEntryDialog, almanah_date_entry_dialog, GTK_TYPE_DIALOG)
-#define ALMANAH_DATE_ENTRY_DIALOG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_DATE_ENTRY_DIALOG, AlmanahDateEntryDialogPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahDateEntryDialog, almanah_date_entry_dialog, GTK_TYPE_DIALOG)
 
 static void
 almanah_date_entry_dialog_class_init (AlmanahDateEntryDialogClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahDateEntryDialogPrivate));
 
 	gobject_class->set_property = almanah_date_entry_dialog_set_property;
 	gobject_class->get_property = almanah_date_entry_dialog_get_property;
@@ -64,7 +66,7 @@ almanah_date_entry_dialog_class_init (AlmanahDateEntryDialogClass *klass)
 static void
 almanah_date_entry_dialog_init (AlmanahDateEntryDialog *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_DATE_ENTRY_DIALOG, AlmanahDateEntryDialogPrivate);
+	self->priv = almanah_date_entry_dialog_get_instance_private (self);
 
 	g_date_clear (&(self->priv->date), 1);
 	g_signal_connect (self, "response", G_CALLBACK (gtk_widget_hide), self);

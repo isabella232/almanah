@@ -97,7 +97,7 @@ void mw_calendar_day_selected_cb (AlmanahCalendarButton *calendar, AlmanahMainWi
 void mw_calendar_select_date_clicked_cb (AlmanahCalendarButton *calendar, AlmanahMainWindow *main_window);
 void mw_desktop_interface_settings_changed (GSettings *settings, const gchar *key, gpointer user_data);
 
-struct _AlmanahMainWindowPrivate {
+typedef struct {
 	GtkWidget *header_bar;
 	GtkSourceView *entry_view;
 	GtkSourceBuffer *entry_buffer;
@@ -125,10 +125,14 @@ struct _AlmanahMainWindowPrivate {
 	GSettings *settings;
 	gulong spell_checking_enabled_changed_id; /* signal handler for application->settings::changed::spell-checking-enabled */
 #endif /* ENABLE_SPELL_CHECKING */
+} AlmanahMainWindowPrivate;
+
+struct _AlmanahMainWindow {
+	GtkApplicationWindow parent;
+	AlmanahMainWindowPrivate *priv;
 };
 
-G_DEFINE_TYPE (AlmanahMainWindow, almanah_main_window, GTK_TYPE_APPLICATION_WINDOW)
-#define ALMANAH_MAIN_WINDOW_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_MAIN_WINDOW, AlmanahMainWindowPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahMainWindow, almanah_main_window, GTK_TYPE_APPLICATION_WINDOW)
 
 static GActionEntry win_entries[] = {
 	{ "cut", mw_cut_activate_cb },
@@ -151,14 +155,13 @@ static void
 almanah_main_window_class_init (AlmanahMainWindowClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-	g_type_class_add_private (klass, sizeof (AlmanahMainWindowPrivate));
 	gobject_class->dispose = almanah_main_window_dispose;
 }
 
 static void
 almanah_main_window_init (AlmanahMainWindow *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_MAIN_WINDOW, AlmanahMainWindowPrivate);
+	self->priv = almanah_main_window_get_instance_private (self);
 
 	gtk_window_set_title (GTK_WINDOW (self), _("Almanah Diary"));
 	g_signal_connect (self, "delete-event", G_CALLBACK (mw_delete_event_cb), NULL);

@@ -69,6 +69,7 @@ inc = include_directories(
 almanah = executable(
   meson.project_name(),
   sources,
+  c_args: ['-Wno-deprecated-declarations'],
   dependencies: almanah_deps,
   include_directories: inc,
   install: true,

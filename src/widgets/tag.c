@@ -37,7 +37,7 @@ enum {
 	PROP_TAG = 1
 };
 
-struct _AlmanahTagPrivate {
+typedef struct {
 	gchar *tag;
 	PangoLayout *layout;
 
@@ -54,6 +54,11 @@ struct _AlmanahTagPrivate {
 	/* The close button state */
 	gboolean close_highlighted;
 	gboolean close_pressed;
+} AlmanahTagPrivate;
+
+struct _AlmanahTag {
+	GtkDrawingArea parent;
+	AlmanahTagPrivate *priv;
 };
 
 enum {
@@ -75,15 +80,13 @@ gboolean    almanah_tag_button_release_event (GtkWidget *widget, GdkEventButton 
 gboolean    almanah_tag_draw                 (GtkWidget *widget, cairo_t *cr, gpointer data);
 gboolean    almanah_tag_query_tooltip        (GtkWidget *widget, gint x, gint y, gboolean keyboard_mode, GtkTooltip *tooltip);
 
-G_DEFINE_TYPE (AlmanahTag, almanah_tag, GTK_TYPE_DRAWING_AREA)
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahTag, almanah_tag, GTK_TYPE_DRAWING_AREA)
 
 static void
 almanah_tag_class_init (AlmanahTagClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GtkWidgetClass *widget_class = GTK_WIDGET_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahTagPrivate));
 
 	gobject_class->get_property = almanah_tag_get_property;
 	gobject_class->set_property = almanah_tag_set_property;
@@ -114,7 +117,7 @@ almanah_tag_class_init (AlmanahTagClass *klass)
 static void
 almanah_tag_init (AlmanahTag *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_TAG, AlmanahTagPrivate);
+	self->priv = almanah_tag_get_instance_private (self);
 	g_signal_connect (G_OBJECT (self), "draw", G_CALLBACK (almanah_tag_draw), NULL);
 
 	gtk_widget_add_events (GTK_WIDGET  (self),

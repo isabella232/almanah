@@ -32,27 +32,30 @@ static gchar *almanah_calendar_detail_func (GtkCalendar *calendar, guint year, g
 static void entry_added_cb (AlmanahStorageManager *storage_manager, AlmanahEntry *entry, AlmanahCalendar *calendar);
 static void entry_removed_cb (AlmanahStorageManager *storage_manager, GDate *date, AlmanahCalendar *calendar);
 
-struct _AlmanahCalendarPrivate {
+typedef struct {
 	AlmanahStorageManager *storage_manager;
 	gulong entry_added_signal;
 	gulong entry_removed_signal;
 
 	gboolean *important_days;
+} AlmanahCalendarPrivate;
+
+struct _AlmanahCalendar {
+	GtkCalendar parent;
+	AlmanahCalendarPrivate *priv;
 };
 
 enum {
 	PROP_STORAGE_MANAGER = 1,
 };
 
-G_DEFINE_TYPE (AlmanahCalendar, almanah_calendar, GTK_TYPE_CALENDAR)
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahCalendar, almanah_calendar, GTK_TYPE_CALENDAR)
 
 static void
 almanah_calendar_class_init (AlmanahCalendarClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GtkCalendarClass *calendar_class = GTK_CALENDAR_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahCalendarPrivate));
 
 	gobject_class->get_property = get_property;
 	gobject_class->set_property = set_property;
@@ -71,7 +74,7 @@ almanah_calendar_class_init (AlmanahCalendarClass *klass)
 static void
 almanah_calendar_init (AlmanahCalendar *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_CALENDAR, AlmanahCalendarPrivate);
+	self->priv = almanah_calendar_get_instance_private (self);
 	gtk_calendar_set_detail_func (GTK_CALENDAR (self), almanah_calendar_detail_func, NULL, NULL);
 }
 

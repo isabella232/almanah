@@ -57,25 +57,27 @@ static void get_property (GObject *object, guint property_id, GValue *value, GPa
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
 static void almanah_import_operation_dispose (GObject *object);
 
-struct _AlmanahImportOperationPrivate {
+typedef struct {
 	gint current_mode; /* index into import_modes */
 	GFile *source;
 	AlmanahStorageManager *storage_manager;
+} AlmanahImportOperationPrivate;
+
+struct _AlmanahImportOperation {
+	GObject parent;
+	AlmanahImportOperationPrivate *priv;
 };
 
 enum {
 	PROP_STORAGE_MANAGER = 1,
 };
 
-G_DEFINE_TYPE (AlmanahImportOperation, almanah_import_operation, G_TYPE_OBJECT)
-#define ALMANAH_IMPORT_OPERATION_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_IMPORT_OPERATION, AlmanahImportOperationPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahImportOperation, almanah_import_operation, G_TYPE_OBJECT)
 
 static void
 almanah_import_operation_class_init (AlmanahImportOperationClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahImportOperationPrivate));
 
 	gobject_class->get_property = get_property;
 	gobject_class->set_property = set_property;
@@ -91,7 +93,7 @@ almanah_import_operation_class_init (AlmanahImportOperationClass *klass)
 static void
 almanah_import_operation_init (AlmanahImportOperation *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_IMPORT_OPERATION, AlmanahImportOperationPrivate);
+	self->priv = almanah_import_operation_get_instance_private (self);
 	self->priv->current_mode = -1; /* no mode selected */
 }
 

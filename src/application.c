@@ -57,7 +57,7 @@ static void action_quit_cb (GSimpleAction *action, GVariant *parameter, gpointer
 /* Some callbacks */
 void almanah_application_style_provider_parsing_error_cb (GtkCssProvider *provider, GtkCssSection *section, GError *error, gpointer user_data);
 
-struct _AlmanahApplicationPrivate {
+typedef struct {
 	gboolean debug;
 
 	GSettings *settings;
@@ -68,7 +68,14 @@ struct _AlmanahApplicationPrivate {
 
 	GtkPrintSettings *print_settings;
 	GtkPageSetup *page_setup;
+} AlmanahApplicationPrivate;
+
+struct _AlmanahApplication {
+	GtkApplication parent_instance;
+
+	AlmanahApplicationPrivate *priv;
 };
+
 
 enum {
 	PROP_DEBUG = 1
@@ -84,7 +91,7 @@ static GActionEntry app_entries[] = {
 	{"quit", action_quit_cb, NULL, NULL, NULL },
 };
 
-G_DEFINE_TYPE (AlmanahApplication, almanah_application, GTK_TYPE_APPLICATION)
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahApplication, almanah_application, GTK_TYPE_APPLICATION)
 
 static void
 almanah_application_class_init (AlmanahApplicationClass *klass)
@@ -92,8 +99,6 @@ almanah_application_class_init (AlmanahApplicationClass *klass)
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GApplicationClass *gapplication_class = G_APPLICATION_CLASS (klass);
 	GtkApplicationClass *gtkapplication_class = GTK_APPLICATION_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahApplicationPrivate));
 
 	gobject_class->constructed = constructed;
 	gobject_class->dispose = dispose;
@@ -116,7 +121,7 @@ almanah_application_class_init (AlmanahApplicationClass *klass)
 static void
 almanah_application_init (AlmanahApplication *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_APPLICATION, AlmanahApplicationPrivate);
+	self->priv = almanah_application_get_instance_private (self);
 	self->priv->debug = FALSE;
 }
 

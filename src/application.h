@@ -30,24 +30,7 @@
 G_BEGIN_DECLS
 
 #define ALMANAH_TYPE_APPLICATION		(almanah_application_get_type ())
-#define ALMANAH_APPLICATION(o)			(G_TYPE_CHECK_INSTANCE_CAST ((o), ALMANAH_TYPE_APPLICATION, AlmanahApplication))
-#define ALMANAH_APPLICATION_CLASS(k)		(G_TYPE_CHECK_CLASS_CAST((k), ALMANAH_TYPE_APPLICATION, AlmanahApplicationClass))
-#define ALMANAH_IS_APPLICATION(o)		(G_TYPE_CHECK_INSTANCE_TYPE ((o), ALMANAH_TYPE_APPLICATION))
-#define ALMANAH_IS_APPLICATION_CLASS(k)		(G_TYPE_CHECK_CLASS_TYPE ((k), ALMANAH_TYPE_APPLICATION))
-#define ALMANAH_APPLICATION_GET_CLASS(o)	(G_TYPE_INSTANCE_GET_CLASS ((o), ALMANAH_TYPE_APPLICATION, AlmanahApplicationClass))
-
-typedef struct _AlmanahApplicationPrivate	AlmanahApplicationPrivate;
-
-typedef struct {
-	GtkApplication parent;
-	AlmanahApplicationPrivate *priv;
-} AlmanahApplication;
-
-typedef struct {
-	GtkApplicationClass parent;
-} AlmanahApplicationClass;
-
-GType almanah_application_get_type (void) G_GNUC_CONST;
+G_DECLARE_FINAL_TYPE (AlmanahApplication, almanah_application, ALMANAH, APPLICATION, GtkApplication)
 
 AlmanahApplication *almanah_application_new (void) G_GNUC_WARN_UNUSED_RESULT G_GNUC_MALLOC;
 

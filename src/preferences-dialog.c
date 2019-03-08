@@ -38,7 +38,7 @@ static void almanah_preferences_dialog_dispose (GObject *object);
 static void pd_key_combo_changed_cb (GtkComboBox *combo_box, AlmanahPreferencesDialog *preferences_dialog);
 static void pd_new_key_button_clicked_cb (GtkButton *button, AlmanahPreferencesDialog *preferences_dialog);
 
-struct _AlmanahPreferencesDialogPrivate {
+typedef struct {
 	GSettings *settings;
 	CryptUIKeyset *keyset;
 	CryptUIKeyStore *key_store;
@@ -47,21 +47,23 @@ struct _AlmanahPreferencesDialogPrivate {
 	guint spell_checking_enabled_id;
 	GtkCheckButton *spell_checking_enabled_check_button;
 #endif /* ENABLE_SPELL_CHECKING */
+} AlmanahPreferencesDialogPrivate;
+
+struct _AlmanahPreferencesDialog {
+	GtkDialog parent;
+	AlmanahPreferencesDialogPrivate *priv;
 };
 
 enum {
 	PROP_SETTINGS = 1,
 };
 
-G_DEFINE_TYPE (AlmanahPreferencesDialog, almanah_preferences_dialog, GTK_TYPE_DIALOG)
-#define ALMANAH_PREFERENCES_DIALOG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_PREFERENCES_DIALOG, AlmanahPreferencesDialogPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahPreferencesDialog, almanah_preferences_dialog, GTK_TYPE_DIALOG)
 
 static void
 almanah_preferences_dialog_class_init (AlmanahPreferencesDialogClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahPreferencesDialogPrivate));
 
 	gobject_class->get_property = get_property;
 	gobject_class->set_property = set_property;
@@ -77,7 +79,7 @@ almanah_preferences_dialog_class_init (AlmanahPreferencesDialogClass *klass)
 static void
 almanah_preferences_dialog_init (AlmanahPreferencesDialog *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_PREFERENCES_DIALOG, AlmanahPreferencesDialogPrivate);
+	self->priv = almanah_preferences_dialog_get_instance_private (self);
 
 	gtk_window_set_modal (GTK_WINDOW (self), FALSE);
 	gtk_window_set_title (GTK_WINDOW (self), _("Preferences"));

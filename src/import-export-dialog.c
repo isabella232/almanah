@@ -35,7 +35,7 @@ void ied_mode_combo_box_changed_cb (GtkComboBox *combo_box, AlmanahImportExportD
 void ied_file_chooser_selection_changed_cb (GtkFileChooser *file_chooser, AlmanahImportExportDialog *self);
 void ied_file_chooser_file_activated_cb (GtkFileChooser *file_chooser, AlmanahImportExportDialog *self);
 
-struct _AlmanahImportExportDialogPrivate {
+typedef struct {
 	AlmanahStorageManager *storage_manager;
 	gboolean import; /* TRUE if we're in import mode, FALSE otherwise */
 	GtkComboBox *mode_combo_box;
@@ -46,15 +46,18 @@ struct _AlmanahImportExportDialogPrivate {
 	GtkLabel *description_label;
 	GtkProgressBar *progress_bar;
 	GCancellable *cancellable; /* non-NULL iff an operation is underway */
+} AlmanahImportExportDialogPrivate;
+
+struct _AlmanahImportExportDialog {
+	GtkDialog parent;
+	AlmanahImportExportDialogPrivate *priv;
 };
 
 enum {
 	PROP_STORAGE_MANAGER = 1,
 };
 
-G_DEFINE_TYPE (AlmanahImportExportDialog, almanah_import_export_dialog, GTK_TYPE_DIALOG)
-#define ALMANAH_IMPORT_EXPORT_DIALOG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_IMPORT_EXPORT_DIALOG,\
-                                                       AlmanahImportExportDialogPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahImportExportDialog, almanah_import_export_dialog, GTK_TYPE_DIALOG)
 
 static void get_property (GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
 static void set_property (GObject *object, guint property_id, const GValue *value, GParamSpec *pspec);
@@ -64,8 +67,6 @@ static void
 almanah_import_export_dialog_class_init (AlmanahImportExportDialogClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahImportExportDialogPrivate));
 
 	gobject_class->get_property = get_property;
 	gobject_class->set_property = set_property;
@@ -82,7 +83,7 @@ almanah_import_export_dialog_class_init (AlmanahImportExportDialogClass *klass)
 static void
 almanah_import_export_dialog_init (AlmanahImportExportDialog *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_IMPORT_EXPORT_DIALOG, AlmanahImportExportDialogPrivate);
+	self->priv = almanah_import_export_dialog_get_instance_private (self);
 	self->priv->current_mode = -1; /* no mode selected */
 
 	g_signal_connect (self, "response", G_CALLBACK (response_cb), self);
@@ -419,28 +420,30 @@ void ird_results_tree_view_row_activated_cb (GtkTreeView *tree_view, GtkTreePath
 void ird_view_button_clicked_cb (GtkButton *button, AlmanahImportResultsDialog *self);
 void ird_view_combo_box_changed_cb (GtkComboBox *combo_box, AlmanahImportResultsDialog *self);
 
-struct _AlmanahImportResultsDialogPrivate {
+typedef struct {
 	GtkListStore *results_store;
 	GtkTreeSelection *results_selection;
 	GtkTreeModelFilter *filtered_results_store;
 	GtkComboBox *view_combo_box;
 	AlmanahImportStatus current_mode;
+} AlmanahImportResultsDialogPrivate;
+
+struct _AlmanahImportResultsDialog {
+	GtkDialog parent;
+	AlmanahImportResultsDialogPrivate *priv;
 };
 
-G_DEFINE_TYPE (AlmanahImportResultsDialog, almanah_import_results_dialog, GTK_TYPE_DIALOG)
-#define ALMANAH_IMPORT_RESULTS_DIALOG_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ALMANAH_TYPE_IMPORT_RESULTS_DIALOG,\
-                                                        AlmanahImportResultsDialogPrivate))
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahImportResultsDialog, almanah_import_results_dialog, GTK_TYPE_DIALOG)
 
 static void
 almanah_import_results_dialog_class_init (AlmanahImportResultsDialogClass *klass)
 {
-	g_type_class_add_private (klass, sizeof (AlmanahImportResultsDialogPrivate));
 }
 
 static void
 almanah_import_results_dialog_init (AlmanahImportResultsDialog *self)
 {
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_IMPORT_RESULTS_DIALOG, AlmanahImportResultsDialogPrivate);
+	self->priv = almanah_import_results_dialog_get_instance_private (self);
 
 	g_signal_connect (self, "response", G_CALLBACK (response_cb), self);
 	g_signal_connect (self, "delete-event", G_CALLBACK (gtk_widget_hide_on_delete), self);

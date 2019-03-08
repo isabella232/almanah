@@ -27,9 +27,14 @@ enum {
 	PROP_STORAGE_MANAGER = 1
 };
 
-struct _AlmanahTagEntryPrivate {
+typedef struct {
 	GtkListStore *tags_store;
 	AlmanahStorageManager *storage_manager;
+} AlmanahTagEntryPrivate;
+
+struct _AlmanahTagEntry {
+	GtkEntry parent;
+	AlmanahTagEntryPrivate *priv;
 };
 
 static void almanah_tag_entry_get_property	  (GObject *object, guint property_id, GValue *value, GParamSpec *pspec);
@@ -41,15 +46,13 @@ gboolean    almanah_tag_entry_focus_out_event	  (GtkWidget *self, GdkEventFocus 
 gboolean    almanah_tag_entry_focus_in_event	  (GtkWidget *self, GdkEventFocus *event);
 gboolean    almanah_tag_entry_match_selected	  (GtkEntryCompletion *widget, GtkTreeModel *model, GtkTreeIter *iter, AlmanahTagEntry *self);
 
-G_DEFINE_TYPE (AlmanahTagEntry, almanah_tag_entry, GTK_TYPE_ENTRY)
+G_DEFINE_TYPE_WITH_PRIVATE (AlmanahTagEntry, almanah_tag_entry, GTK_TYPE_ENTRY)
 
 static void
 almanah_tag_entry_class_init (AlmanahTagEntryClass *klass)
 {
 	GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 	GtkWidgetClass *gtkwidget_class = GTK_WIDGET_CLASS (klass);
-
-	g_type_class_add_private (klass, sizeof (AlmanahTagEntryPrivate));
 
 	gobject_class->get_property = almanah_tag_entry_get_property;
 	gobject_class->set_property = almanah_tag_entry_set_property;
@@ -72,7 +75,7 @@ almanah_tag_entry_init (AlmanahTagEntry *self)
 	GtkEntryCompletion *completion;
 	AtkObject *self_atk_object;
 
-	self->priv = G_TYPE_INSTANCE_GET_PRIVATE (self, ALMANAH_TYPE_TAG_ENTRY, AlmanahTagEntryPrivate);
+	self->priv = almanah_tag_entry_get_instance_private (self);
 
 	self->priv->tags_store = gtk_list_store_new (1, G_TYPE_STRING);
 	completion = gtk_entry_completion_new ();
